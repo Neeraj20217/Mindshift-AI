@@ -248,6 +248,12 @@ body {
 .glass-input:hover:not(:focus) {
   border-color: rgba(255,255,255,0.12);
 }
+.glass-input-icon-left {
+  padding-left: 2.75rem !important;
+}
+.glass-input-icon-right {
+  padding-right: 2.75rem !important;
+}
 
 /* Select styling */
 select.glass-input {

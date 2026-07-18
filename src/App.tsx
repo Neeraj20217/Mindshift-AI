@@ -1,18 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { storageService } from './services/storage';
-import { Auth } from './pages/Auth';
-import { Assessment } from './pages/Assessment';
-import { Dashboard } from './pages/Dashboard';
 import { AnimatedBackground } from './components/ui/AnimatedBackground';
 import { Sparkles } from 'lucide-react';
+
+const Auth = lazy(() => import('./pages/Auth'));
+const Assessment = lazy(() => import('./pages/Assessment'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+const LoadingSpinner: React.FC = () => (
+  <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
+    <div className="relative w-16 h-16 flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full border-4 border-slate-900 border-t-emerald-500 animate-spin" />
+      <Sparkles className="w-6 h-6 text-emerald-400 absolute animate-pulse" />
+    </div>
+    <span className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-6 animate-pulse">
+      Calibrating Neuroplasticity...
+    </span>
+  </div>
+);
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
   const [checkingAssessment, setCheckingAssessment] = useState(true);
   const [hasAssessment, setHasAssessment] = useState(false);
 
-  const checkUserAssessment = async () => {
+  const checkUserAssessment = React.useCallback(async () => {
     if (!user) {
       setHasAssessment(false);
       setCheckingAssessment(false);
@@ -28,36 +41,37 @@ const AppContent: React.FC = () => {
     } finally {
       setCheckingAssessment(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     checkUserAssessment();
-  }, [user]);
+  }, [checkUserAssessment]);
 
   if (loading || (user && checkingAssessment)) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
-        {/* Simple elegant glass loader */}
-        <div className="relative w-16 h-16 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full border-4 border-slate-900 border-t-emerald-500 animate-spin" />
-          <Sparkles className="w-6 h-6 text-emerald-400 absolute animate-pulse" />
-        </div>
-        <span className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-6 animate-pulse">
-          Calibrating Neuroplasticity...
-        </span>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {
-    return <Auth />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Auth />
+      </Suspense>
+    );
   }
 
   if (!hasAssessment) {
-    return <Assessment onComplete={() => setHasAssessment(true)} />;
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Assessment onComplete={() => setHasAssessment(true)} />
+      </Suspense>
+    );
   }
 
-  return <Dashboard onResetAssessment={() => setHasAssessment(false)} />;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <Dashboard onResetAssessment={() => setHasAssessment(false)} />
+    </Suspense>
+  );
 };
 
 function App() {

@@ -44,9 +44,12 @@ export const ReplacementSuggestions: React.FC<ReplacementSuggestionsProps> = ({ 
       }, 1000);
     } else if (timeLeft === 0 && activeTimerIdx !== null) {
       setTimerRunning(false);
-      if (!completedActions.includes(activeTimerIdx)) {
-        setCompletedActions((prev) => [...prev, activeTimerIdx]);
-      }
+      setCompletedActions((prev) => {
+        if (!prev.includes(activeTimerIdx)) {
+          return [...prev, activeTimerIdx];
+        }
+        return prev;
+      });
       setActiveTimerIdx(null);
     }
     return () => {

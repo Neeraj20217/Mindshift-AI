@@ -38,7 +38,7 @@ export const Dashboard: React.FC<{ onResetAssessment: () => void }> = ({ onReset
   const [showRelapseModal, setShowRelapseModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const fetchUserData = async () => {
+  const fetchUserData = React.useCallback(async () => {
     if (!user) return;
     try {
       const assessData = await storageService.getHabitAssessment(user.uid);
@@ -49,11 +49,11 @@ export const Dashboard: React.FC<{ onResetAssessment: () => void }> = ({ onReset
     } catch (e) {
       console.error('Failed to load dashboard data:', e);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchUserData();
-  }, [user]);
+  }, [fetchUserData]);
 
   const handleAssessmentReset = async () => {
     if (window.confirm("Are you sure you want to reset your habit profile and start the assessment over?")) {

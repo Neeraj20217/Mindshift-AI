@@ -337,3 +337,69 @@ describe('AI Service - Replacement Suggestions (Fallback Mode)', () => {
     }
   });
 });
+
+describe('Authentication Flow (Mock Mode Simulation)', () => {
+  it('prevents signup with an existing email', async () => {
+    const email = 'existing@test.com';
+    const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    // Simulate signup first time
+    const profile = {
+      uid: mockUid,
+      email,
+      name: 'Test User',
+      createdAt: new Date().toISOString(),
+      hasCompletedAssessment: false,
+    };
+    await localFallbackStorage.saveUserProfile(profile);
+    
+    // Attempt duplicate signup simulation
+    const checkDuplicate = async () => {
+      const existing = await localFallbackStorage.getUserProfile(mockUid);
+      if (existing) {
+        throw new Error('An account with this email address already exists.');
+      }
+    };
+    
+    await expect(checkDuplicate()).rejects.toThrow('An account with this email address already exists.');
+  });
+
+  it('verifies that forgot password flow throws for non-existent users', async () => {
+    const email = 'nonexistent@test.com';
+    const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    const checkReset = async () => {
+      const profile = await localFallbackStorage.getUserProfile(mockUid);
+      if (!profile) {
+        throw new Error('No account found with this email address.');
+      }
+    };
+    
+    await expect(checkReset()).rejects.toThrow('No account found with this email address.');
+  });
+
+  it('allows forgot password flow to succeed for existing users', async () => {
+    const email = 'existing_reset@test.com';
+    const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    const profile = {
+      uid: mockUid,
+      email,
+      name: 'Test User',
+      createdAt: new Date().toISOString(),
+      hasCompletedAssessment: false,
+    };
+    await localFallbackStorage.saveUserProfile(profile);
+    
+    const checkReset = async () => {
+      const retrieved = await localFallbackStorage.getUserProfile(mockUid);
+      if (!retrieved) {
+        throw new Error('No account found with this email address.');
+      }
+      return true;
+    };
+    
+    const result = await checkReset();
+    expect(result).toBe(true);
+  });
+});

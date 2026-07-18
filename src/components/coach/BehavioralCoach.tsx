@@ -16,7 +16,7 @@ export const BehavioralCoach: React.FC<BehavioralCoachProps> = ({ assessment }) 
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchChatHistory = async () => {
+  const fetchChatHistory = React.useCallback(async () => {
     if (!user) return;
     try {
       const history = await storageService.getChatHistory(user.uid);
@@ -35,11 +35,11 @@ export const BehavioralCoach: React.FC<BehavioralCoachProps> = ({ assessment }) 
     } catch (e) {
       console.error('Error fetching chat history:', e);
     }
-  };
+  }, [user, assessment]);
 
   useEffect(() => {
     fetchChatHistory();
-  }, [user, assessment]);
+  }, [fetchChatHistory]);
 
   // Auto-scroll to bottom of conversation
   const scrollToBottom = () => {

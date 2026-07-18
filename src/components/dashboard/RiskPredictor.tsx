@@ -18,7 +18,7 @@ export const RiskPredictor: React.FC<RiskPredictorProps> = ({ assessment, recent
     preventiveActions: string[];
   } | null>(null);
 
-  const fetchRisk = async () => {
+  const fetchRisk = React.useCallback(async () => {
     setLoading(true);
     try {
       const moods = recentJournals.slice(0, 3).map(j => j.aiAnalysis?.mood || 'Neutral');
@@ -35,11 +35,11 @@ export const RiskPredictor: React.FC<RiskPredictorProps> = ({ assessment, recent
     } finally {
       setLoading(false);
     }
-  };
+  }, [streak, assessment.triggers, assessment.stressLevel, assessment.sleepHours, recentJournals]);
 
   useEffect(() => {
     fetchRisk();
-  }, [streak, assessment.stressLevel, assessment.sleepHours]);
+  }, [fetchRisk]);
 
   if (loading && !riskData) {
     return (

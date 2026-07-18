@@ -5,7 +5,8 @@ import {
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut
+  signOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { UserProfile } from '../types/habit';
@@ -16,6 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
   isFirebaseMode: boolean;
 }
 
@@ -128,6 +130,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         // Mock signup
         const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+        const existing = await storageService.getUserProfile(mockUid);
+        if (existing) {
+          throw new Error('An account with this email address already exists.');
+        }
+
         const newProfile: UserProfile = {
           uid: mockUid,
           email,
@@ -158,8 +165,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendPasswordReset = async (email: string) => {
+    if (isFirebaseMode && firebaseAuth) {
+      await sendPasswordResetEmail(firebaseAuth, email);
+    } else {
+      // Mock password reset logic
+      const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+      const profile = await storageService.getUserProfile(mockUid);
+      if (!profile) {
+        throw new Error('No account found with this email address.');
+      }
+      // Simulate success with local mock
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, isFirebaseMode }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, sendPasswordReset, isFirebaseMode }}>
       {children}
     </AuthContext.Provider>
   );

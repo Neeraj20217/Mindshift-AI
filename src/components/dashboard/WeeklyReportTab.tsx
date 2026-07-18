@@ -13,7 +13,7 @@ export const WeeklyReportTab: React.FC = () => {
   const [relapses, setRelapses] = useState<RelapseLog[]>([]);
   const [assessmentStreak, setAssessmentStreak] = useState(0);
 
-  const fetchReportData = async () => {
+  const fetchReportData = React.useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -34,11 +34,11 @@ export const WeeklyReportTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchReportData();
-  }, [user]);
+  }, [fetchReportData]);
 
   if (loading && !report) {
     return (

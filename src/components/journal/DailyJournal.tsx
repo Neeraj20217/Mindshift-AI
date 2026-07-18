@@ -17,22 +17,25 @@ export const DailyJournal: React.FC<DailyJournalProps> = ({ onJournalSaved }) =>
   const [activeAnalysis, setActiveAnalysis] = useState<JournalEntry | null>(null);
   const [successMsg, setSuccessMsg] = useState(false);
 
-  const fetchHistory = async () => {
+  const fetchHistory = React.useCallback(async () => {
     if (!user) return;
     try {
       const history = await storageService.getJournalEntries(user.uid);
       setJournals(history);
-      if (history.length > 0 && !activeAnalysis) {
-        setActiveAnalysis(history[0]);
-      }
+      setActiveAnalysis(prev => {
+        if (history.length > 0 && !prev) {
+          return history[0];
+        }
+        return prev;
+      });
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchHistory();
-  }, [user]);
+  }, [fetchHistory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

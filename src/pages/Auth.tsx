@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Brain, Sparkles, AlertTriangle, KeyRound, Mail, User as UserIcon,
-  Loader2, Eye, EyeOff, Zap, ShieldCheck, TrendingUp, Heart, ArrowRight,
+  Loader2, Eye, EyeOff, Zap, ShieldCheck, TrendingUp, Heart, ArrowRight, Check
 } from 'lucide-react';
 
 const authSchema = z.object({
@@ -48,10 +48,11 @@ const STATS = [
 ];
 
 export const Auth: React.FC = () => {
-  const { login, signup } = useAuth();
+  const { login, signup, sendPasswordReset } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
 
@@ -60,6 +61,8 @@ export const Auth: React.FC = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
+    trigger,
   } = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
     defaultValues: { email: '', password: '', name: '' },
@@ -68,6 +71,7 @@ export const Auth: React.FC = () => {
   const onSubmit = async (data: AuthFormValues) => {
     setLoading(true);
     setAuthError(null);
+    setResetSuccess(false);
     try {
       if (isSignUp) {
         await signup(data.email, data.password, data.name || 'User');
@@ -82,9 +86,37 @@ export const Auth: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = getValues('email');
+    if (!email) {
+      setAuthError('Please enter your email address to reset your password.');
+      setResetSuccess(false);
+      return;
+    }
+    const isEmailValid = await trigger('email');
+    if (!isEmailValid) {
+      setResetSuccess(false);
+      return;
+    }
+
+    setLoading(true);
+    setAuthError(null);
+    setResetSuccess(false);
+    try {
+      await sendPasswordReset(email);
+      setResetSuccess(true);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to send password reset email.';
+      setAuthError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGuestLogin = async () => {
     setGuestLoading(true);
     setAuthError(null);
+    setResetSuccess(false);
     try {
       await login('guest@mindshift.ai', 'password123');
     } catch (e: unknown) {
@@ -98,6 +130,7 @@ export const Auth: React.FC = () => {
   const handleToggleMode = () => {
     setIsSignUp((v) => !v);
     setAuthError(null);
+    setResetSuccess(false);
     reset();
   };
 
@@ -243,7 +276,7 @@ export const Auth: React.FC = () => {
                     type="text"
                     placeholder="e.g. Alex Johnson"
                     autoComplete="name"
-                    className="glass-input pl-10 w-full text-sm"
+                    className="glass-input glass-input-icon-left w-full text-sm"
                     {...register('name')}
                   />
                 </div>
@@ -262,7 +295,7 @@ export const Auth: React.FC = () => {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete={isSignUp ? 'email' : 'username'}
-                  className="glass-input pl-10 w-full text-sm"
+                  className="glass-input glass-input-icon-left w-full text-sm"
                   {...register('email')}
                 />
               </div>
@@ -282,7 +315,7 @@ export const Auth: React.FC = () => {
                 {!isSignUp && (
                   <button
                     type="button"
-                    onClick={() => setAuthError('Password reset: use the "Forgot password" flow in Firebase or re-register.')}
+                    onClick={handleForgotPassword}
                     className="text-[11px] text-slate-500 hover:text-emerald-400 transition-colors"
                   >
                     Forgot password?
@@ -296,7 +329,7 @@ export const Auth: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                  className="glass-input pl-10 pr-10 w-full text-sm"
+                  className="glass-input glass-input-icon-left glass-input-icon-right w-full text-sm"
                   {...register('password')}
                 />
                 <button
@@ -323,9 +356,17 @@ export const Auth: React.FC = () => {
 
             {/* Error banner */}
             {authError && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3.5 rounded-xl flex items-start gap-2.5">
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3.5 rounded-xl flex items-start gap-2.5 animate-fadeIn">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{authError}</span>
+              </div>
+            )}
+
+            {/* Success banner */}
+            {resetSuccess && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3.5 rounded-xl flex items-start gap-2.5 animate-fadeIn">
+                <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
+                <span>Password reset link has been successfully dispatched to your email address.</span>
               </div>
             )}
 

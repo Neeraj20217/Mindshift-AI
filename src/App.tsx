@@ -4,6 +4,7 @@ import { storageService } from './services/storage';
 import { Auth } from './pages/Auth';
 import { Assessment } from './pages/Assessment';
 import { Dashboard } from './pages/Dashboard';
+import { AnimatedBackground } from './components/ui/AnimatedBackground';
 import { Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -62,6 +63,13 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
+      {/* Animated neural network canvas */}
+      <AnimatedBackground />
+      {/* Drifting aurora orbs */}
+      <div className="aurora-orb aurora-orb-1" aria-hidden="true" />
+      <div className="aurora-orb aurora-orb-2" aria-hidden="true" />
+      <div className="aurora-orb aurora-orb-3" aria-hidden="true" />
+      <div className="aurora-orb aurora-orb-4" aria-hidden="true" />
       <AppContent />
     </AuthProvider>
   );

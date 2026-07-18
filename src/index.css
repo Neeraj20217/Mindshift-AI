@@ -27,15 +27,62 @@
 }
 
 body {
-  background-color: #020617; /* bg-slate-950 fallback */
-  color: #f1f5f9; /* text-slate-100 fallback */
+  background-color: #020617;
+  color: #f1f5f9;
   font-family: 'Inter', sans-serif;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.10) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 55%),
+    radial-gradient(at 50% 80%, rgba(244, 63, 94, 0.05) 0px, transparent 50%);
   background-attachment: fixed;
   min-height: 100vh;
+  position: relative;
 }
+
+/* Slow drifting aurora orbs — added to layout root */
+.aurora-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: drift 18s ease-in-out infinite alternate;
+  z-index: 0;
+}
+.aurora-orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+  top: -10%; left: -10%;
+  animation-duration: 22s;
+}
+.aurora-orb-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%);
+  bottom: -15%; right: -10%;
+  animation-duration: 28s;
+  animation-delay: -8s;
+}
+.aurora-orb-3 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(244,63,94,0.07) 0%, transparent 70%);
+  top: 40%; left: 50%;
+  animation-duration: 16s;
+  animation-delay: -4s;
+}
+.aurora-orb-4 {
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%);
+  top: 10%; right: 20%;
+  animation-duration: 20s;
+  animation-delay: -12s;
+}
+
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(40px, -30px) scale(1.05); }
+  66%  { transform: translate(-30px, 50px) scale(0.97); }
+  100% { transform: translate(20px, -20px) scale(1.02); }
+}
+
 
 /* Custom Standard CSS Utilities */
 .glass-panel {

@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+:root {
+  --background: 10 15 30;
+  --foreground: 240 250 255;
+  
+  --card: 15 23 42;
+  --card-foreground: 240 250 255;
+  
+  --primary: 16 185 129; /* Emerald 500 */
+  --primary-foreground: 255 255 255;
+  
+  --secondary: 99 102 241; /* Indigo 500 */
+  --secondary-foreground: 255 255 255;
+  
+  --accent: 244 63 94; /* Rose 500 */
+  --accent-foreground: 255 255 255;
+  
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  
+  --border: 30 41 59;
+  --input: 30 41 59;
+  --ring: 16 185 129;
+  
+  --radius: 1rem;
+}
+
+body {
+  background-color: #020617; /* bg-slate-950 fallback */
+  color: #f1f5f9; /* text-slate-100 fallback */
+  font-family: 'Inter', sans-serif;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Custom Standard CSS Utilities */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s ease;
+}
+.glass-panel-hover:hover {
+  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: 0 10px 15px -3px rgba(2, 6, 23, 0.2);
+}
+
+.glass-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  transition: all 0.2s ease;
+}
+.glass-input::placeholder {
+  color: #64748b;
+}
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+.glass-button-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+  transition: all 0.2s ease;
+}
+.glass-button-primary:hover {
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+  filter: brightness(1.05);
+}
+.glass-button-primary:active {
+  transform: scale(0.98);
+}
+.glass-button-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.glass-button-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.glass-button-secondary:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #ffffff;
+}
+.glass-button-secondary:active {
+  transform: scale(0.98);
+}
+
+.glass-button-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.15);
+  transition: all 0.2s ease;
+}
+.glass-button-danger:hover {
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.25);
+  filter: brightness(1.05);
+}
+.glass-button-danger:active {
+  transform: scale(0.98);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.text-glow-indigo {
+  text-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+}
+
+.text-glow-rose {
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
+/* Breathing animation */
+@keyframes breathingPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px 5px rgba(244, 63, 94, 0.3);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 30px 15px rgba(244, 63, 94, 0.6);
+  }
+}
+
+.breathing-ring {
+  animation: breathingPulse 8s ease-in-out infinite;
+}

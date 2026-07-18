@@ -1,0 +1,187 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { isFirebaseConfigured, storageService } from '../services/storage';
+import { auth as firebaseAuth } from '../firebase/config';
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut
+} from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
+import type { UserProfile } from '../types/habit';
+
+interface AuthContextType {
+  user: UserProfile | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
+  isFirebaseMode: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const isFirebaseMode = isFirebaseConfigured();
+
+  // Handle Auth changes
+  useEffect(() => {
+    if (isFirebaseMode && firebaseAuth) {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, async (fbUser: FirebaseUser | null) => {
+        if (fbUser) {
+          try {
+            // Load user profile
+            let profile = await storageService.getUserProfile(fbUser.uid);
+            if (!profile) {
+              profile = {
+                uid: fbUser.uid,
+                email: fbUser.email || '',
+                name: fbUser.displayName || 'User',
+                createdAt: new Date().toISOString(),
+                hasCompletedAssessment: false
+              };
+              await storageService.saveUserProfile(profile);
+            }
+            setUser(profile);
+          } catch (e) {
+            console.error('Error fetching user profile from Firestore:', e);
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
+      return unsubscribe;
+    } else {
+      // Local fallback mode: automatically log in a default guest user if no session is set
+      const localSession = localStorage.getItem('mindshift_auth_session');
+      const fetchLocalUser = async () => {
+        if (localSession) {
+          const parsed = JSON.parse(localSession) as { uid: string };
+          const profile = await storageService.getUserProfile(parsed.uid);
+          if (profile) {
+            setUser(profile);
+          } else {
+            // Re-create default profile if deleted
+            const defaultProfile: UserProfile = {
+              uid: parsed.uid,
+              email: 'guest@mindshift.ai',
+              name: 'MindShift Guest',
+              createdAt: new Date().toISOString(),
+              hasCompletedAssessment: false
+            };
+            await storageService.saveUserProfile(defaultProfile);
+            setUser(defaultProfile);
+          }
+        } else {
+          // Initialize guest session by default
+          const defaultUid = 'guest_user_123';
+          const defaultProfile: UserProfile = {
+            uid: defaultUid,
+            email: 'guest@mindshift.ai',
+            name: 'MindShift Guest',
+            createdAt: new Date().toISOString(),
+            hasCompletedAssessment: false
+          };
+          
+          localStorage.setItem('mindshift_auth_session', JSON.stringify({ uid: defaultUid }));
+          await storageService.saveUserProfile(defaultProfile);
+          setUser(defaultProfile);
+        }
+        setLoading(false);
+      };
+      
+      fetchLocalUser();
+    }
+  }, [isFirebaseMode]);
+
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      if (isFirebaseMode && firebaseAuth) {
+        await signInWithEmailAndPassword(firebaseAuth, email, password);
+      } else {
+        // Mock login
+        const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+        let profile = await storageService.getUserProfile(mockUid);
+        if (!profile) {
+          profile = {
+            uid: mockUid,
+            email,
+            name: email.split('@')[0],
+            createdAt: new Date().toISOString(),
+            hasCompletedAssessment: false
+          };
+          await storageService.saveUserProfile(profile);
+        }
+        localStorage.setItem('mindshift_auth_session', JSON.stringify({ uid: mockUid }));
+        setUser(profile);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signup = async (email: string, password: string, name: string) => {
+    setLoading(true);
+    try {
+      if (isFirebaseMode && firebaseAuth) {
+        const cred = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        const newProfile: UserProfile = {
+          uid: cred.user.uid,
+          email,
+          name,
+          createdAt: new Date().toISOString(),
+          hasCompletedAssessment: false
+        };
+        await storageService.saveUserProfile(newProfile);
+        setUser(newProfile);
+      } else {
+        // Mock signup
+        const mockUid = `local_user_${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+        const newProfile: UserProfile = {
+          uid: mockUid,
+          email,
+          name,
+          createdAt: new Date().toISOString(),
+          hasCompletedAssessment: false
+        };
+        await storageService.saveUserProfile(newProfile);
+        localStorage.setItem('mindshift_auth_session', JSON.stringify({ uid: mockUid }));
+        setUser(newProfile);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    try {
+      if (isFirebaseMode && firebaseAuth) {
+        await signOut(firebaseAuth);
+      } else {
+        localStorage.removeItem('mindshift_auth_session');
+        setUser(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, isFirebaseMode }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

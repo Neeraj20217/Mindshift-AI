@@ -55,44 +55,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       return unsubscribe;
     } else {
-      // Local fallback mode: automatically log in a default guest user if no session is set
+      // Local fallback mode: restore existing session or show login page
       const localSession = localStorage.getItem('mindshift_auth_session');
       const fetchLocalUser = async () => {
         if (localSession) {
-          const parsed = JSON.parse(localSession) as { uid: string };
-          const profile = await storageService.getUserProfile(parsed.uid);
-          if (profile) {
-            setUser(profile);
-          } else {
-            // Re-create default profile if deleted
-            const defaultProfile: UserProfile = {
-              uid: parsed.uid,
-              email: 'guest@mindshift.ai',
-              name: 'MindShift Guest',
-              createdAt: new Date().toISOString(),
-              hasCompletedAssessment: false
-            };
-            await storageService.saveUserProfile(defaultProfile);
-            setUser(defaultProfile);
+          try {
+            const parsed = JSON.parse(localSession) as { uid: string };
+            const profile = await storageService.getUserProfile(parsed.uid);
+            if (profile) {
+              setUser(profile);
+            } else {
+              // Session token exists but profile was deleted — clear stale session
+              localStorage.removeItem('mindshift_auth_session');
+              setUser(null);
+            }
+          } catch {
+            localStorage.removeItem('mindshift_auth_session');
+            setUser(null);
           }
         } else {
-          // Initialize guest session by default
-          const defaultUid = 'guest_user_123';
-          const defaultProfile: UserProfile = {
-            uid: defaultUid,
-            email: 'guest@mindshift.ai',
-            name: 'MindShift Guest',
-            createdAt: new Date().toISOString(),
-            hasCompletedAssessment: false
-          };
-          
-          localStorage.setItem('mindshift_auth_session', JSON.stringify({ uid: defaultUid }));
-          await storageService.saveUserProfile(defaultProfile);
-          setUser(defaultProfile);
+          // No session — show the login page
+          setUser(null);
         }
         setLoading(false);
       };
-      
+
       fetchLocalUser();
     }
   }, [isFirebaseMode]);

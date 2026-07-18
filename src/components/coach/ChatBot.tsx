@@ -57,15 +57,17 @@ export const ChatBot: React.FC<ChatBotProps> = ({ assessment }) => {
     setIsLoading(true);
 
     try {
-      // Structure historical thread format for Gemini SDK
-      const geminiHistory = updatedMessages.map(m => ({
+      // Gemini's startChat history = all PRIOR completed turns (not the current user msg).
+      // The current user message is delivered via sendMessage() below.
+      const priorMessages = messages; // messages before the new user turn was appended
+      const geminiHistory = priorMessages.map(m => ({
         role: m.role,
         parts: [{ text: m.text }]
       }));
 
       const response = await aiService.getChatResponse(geminiHistory, cleanMsg, assessment);
       setMessages(prev => [...prev, { role: 'model', text: response }]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setMessages(prev => [
         ...prev,

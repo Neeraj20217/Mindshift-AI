@@ -424,28 +424,111 @@ export const aiService = {
     `;
 
     if (!model) {
-      // Mock chat conversation flow
-      const lowercase = newMessage.toLowerCase();
-      if (lowercase.includes('hello') || lowercase.includes('hi')) {
-        return `Hello! I'm Dr. Shift, your habit change coach. Looking at your profile, how has managing your ${habitContext?.habitType || 'habit'} been going today?`;
+      const lc = newMessage.toLowerCase().trim();
+      const habit = habitContext?.habitType || 'your habit';
+      const historyLength = history.filter(h => h.role === 'user').length;
+
+      // Greeting
+      if (lc.match(/^(hi|hello|hey|good morning|good evening|good afternoon|sup|yo|howdy)/)) {
+        const greetings = [
+          `Hi! I'm Dr. Shift, your AI Behavioral Coach. I've loaded your recovery blueprint for "${habit}". How are you feeling right now — any urges or cravings pulling at you today?`,
+          `Hello! Great to check in. You're working on "${habit}". On a scale of 1-10, how intense are your cravings feeling at this moment?`,
+          `Hey there! Let's take a breath and check in. How has today been going with "${habit}"? Any moments you're proud of, or any that were tough?`,
+        ];
+        return greetings[historyLength % greetings.length];
       }
-      if (lowercase.includes('hard') || lowercase.includes('struggle') || lowercase.includes('crave') || lowercase.includes('want')) {
-        return `I understand it feels difficult. Cravings are perfectly normal. When they hit, it helps to identify: what emotion are you feeling right now? Is it boredom, stress, or tiredness? Identifying the trigger is 50% of the battle.`;
+
+      // Struggling / hard / difficult
+      if (lc.match(/hard|difficult|struggle|can't stop|cannot stop|failing|failed|relapsed/)) {
+        return `Struggling is completely normal — in fact, it means your brain is fighting the old neural pathway. When you feel the urge to ${habit.toLowerCase()}, try this: pause for exactly 60 seconds and name 5 things you can physically see around you. This activates your prefrontal cortex and weakens the craving signal. Can you try that right now?`;
       }
-      return `That's a key observation. In behavioral science, we talk about the "cue-routine-reward" loop. What is one small step you can take right now to disrupt that routine? For example, moving to another room, or doing a 2-minute stretch?`;
+
+      // Craving / urge / want to
+      if (lc.match(/crav|urge|want to|need to|tempt|pull|itch/)) {
+        const tips = [
+          `Cravings peak at about 20 minutes then fade — they're like a wave. Right now, set a 10-minute timer. If the urge is still there after 10 minutes, we'll deal with it together. What do you see around you right now?`,
+          `That urge is your brain asking for a dopamine hit. Instead, do 10 jumping jacks or push-ups right now. Physical movement floods your system with dopamine naturally — and breaks the cue loop. Can you do that?`,
+          `Acknowledge the craving without judgment: say out loud "I notice I want to ${habit.toLowerCase()}, and that's okay. I'm choosing to wait." That small act of labelling reduces urge intensity by up to 40%. Did you try it?`,
+        ];
+        return tips[historyLength % tips.length];
+      }
+
+      // Boredom
+      if (lc.match(/bored|nothing to do|boring|boredom/)) {
+        return `Boredom is one of the top cue triggers for ${habit}. When you're bored, your brain seeks stimulation — and a familiar habit is the easiest path. Here's a pattern interrupt: stand up, go to a different room, and spend 2 minutes looking out a window. Changing your physical environment resets the cue-loop. What room are you in right now?`;
+      }
+
+      // Stress / anxiety / overwhelm
+      if (lc.match(/stress|anxious|anxiety|overwhelm|panic|worried|pressure/)) {
+        return `Stress hijacks the rational brain and shortcuts to habit loops — that's neuroscience, not weakness. Let's do a quick 4-7-8 breath right now: breathe IN for 4 counts, HOLD for 7, breathe OUT for 8. This activates the vagus nerve and lowers cortisol within 60 seconds. Try it once and tell me how you feel.`;
+      }
+
+      // Progress / did well / proud
+      if (lc.match(/did it|succeeded|proud|better|improved|good day|win|progress/)) {
+        return `That's fantastic — celebrating small wins is scientifically proven to reinforce the new neural pathway you're building. Your brain literally rewires itself each time you resist. What specific moment today made you feel in control? Let's anchor that feeling as your new identity.`;
+      }
+
+      // Very short messages (1-2 words: "next", "ok", "and", etc.)
+      if (lc.split(' ').length <= 2) {
+        const prompts = [
+          `Tell me more — what's going through your mind right now about ${habit}? I'm listening without judgment.`,
+          `I want to understand better. Can you describe what triggered you to reach out to me right now?`,
+          `What's happening in your body as you think about ${habit}? Any tension, restlessness, or urge?`,
+          `Let's go deeper. On a scale of 1 to 10, how strong is your urge to engage in ${habit} right now?`,
+          `It sounds like something's on your mind. What happened in the last hour that's relevant to your recovery?`,
+        ];
+        return prompts[historyLength % prompts.length];
+      }
+
+      // General rotating pool
+      const general = [
+        `That's an important observation. In CBT, we identify "automatic thoughts" — the instant mental narrative that appears right before the habit. What thought crosses your mind just before you engage in ${habit}?`,
+        `Every moment of resistance builds new neural pathways. What strategy from your recovery plan feels most practical for you right now?`,
+        `Think about your environment right now. Is there anything nearby that's acting as a visual cue or trigger for ${habit}? Sometimes removing just one cue item breaks the chain.`,
+        `Let's do a quick check: rate your stress (1-10), energy (1-10), and urge intensity (1-10). These three numbers tell me a lot about your vulnerability window right now.`,
+        `The research shows that substitution beats suppression. Instead of fighting the urge to ${habit}, what's one enjoyable activity you could replace it with for just 5 minutes?`,
+      ];
+      return general[historyLength % general.length];
     }
 
     try {
-      // Use Gemini multi-turn chat
+      // Gemini requires history to strictly alternate: user → model → user → model...
+      // Filter to only completed turn pairs (the current user message arrives via sendMessage)
+      const validHistory: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+      for (let i = 0; i < history.length - 1; i += 2) {
+        const u = history[i];
+        const m = history[i + 1];
+        if (u?.role === 'user' && m?.role === 'model') {
+          validHistory.push(u, m);
+        }
+      }
+
+      // Use Gemini multi-turn chat with correct systemInstruction param
       const chat = model.startChat({
-        history: history,
-        systemInstruction: systemInstruction
+        history: validHistory,
+        generationConfig: {
+          maxOutputTokens: 300,
+          temperature: 0.85,
+        },
       });
-      const result = await chat.sendMessage(newMessage);
-      return result.response.text();
+
+      const result = await chat.sendMessage(
+        `[SYSTEM: ${systemInstruction}]\n\n${newMessage}`
+      );
+
+      let text = result.response.text().trim();
+      // Strip any accidental JSON wrapping from text responses
+      if (text.startsWith('{') || text.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(text);
+          text = parsed.response || parsed.message || parsed.text || JSON.stringify(parsed);
+        } catch { /* keep original */ }
+      }
+      return text;
     } catch (e) {
       console.error('Gemini Chat error, falling back:', e);
-      return `I'm here for you. Sometimes our connections can be a bit unstable, but our resolve doesn't have to be. Let's focus on taking one breath and staying in this moment.`;
+      const habit = habitContext?.habitType || 'your habit';
+      return `I'm here for you. Let's take one thing at a time. When you feel the urge to ${habit.toLowerCase()}, what's the first thought that enters your mind? Understanding that automatic thought is your most powerful tool right now.`;
     }
   }
 };

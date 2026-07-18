@@ -79,7 +79,7 @@ const SEVERITY_OPTIONS = [
 const STEP_LABELS = ['Identify Habit', 'Triggers & Context', 'Wellness Baseline'];
 
 export const Assessment: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
@@ -178,8 +178,17 @@ export const Assessment: React.FC<{ onComplete: () => void }> = ({ onComplete })
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative z-10">
       <div className="w-full max-w-2xl">
+        {/* Onboarding top action header */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => logout()}
+            className="text-xs font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/5 px-3 py-1.5 rounded-lg border border-transparent hover:border-rose-500/10 transition-all duration-200"
+          >
+            Sign Out & Return to Login
+          </button>
+        </div>
 
         {/* ── Card ── */}
         <div className="glass-panel rounded-2xl relative overflow-hidden border border-slate-800/60 shadow-2xl">

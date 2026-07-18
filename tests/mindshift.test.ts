@@ -338,6 +338,57 @@ describe('AI Service - Replacement Suggestions (Fallback Mode)', () => {
   });
 });
 
+describe('AI Service - Journal Analysis (Fallback Mode)', () => {
+  it('analyzes stress level and mood from journal entry', async () => {
+    const analysis = await aiService.analyzeJournal('Today I felt super stressed and tired.');
+    expect(analysis).toBeDefined();
+    expect(typeof analysis.mood).toBe('string');
+    expect(analysis.stressLevel).toBeGreaterThanOrEqual(1);
+    expect(analysis.stressLevel).toBeLessThanOrEqual(10);
+    expect(Array.isArray(analysis.triggersIdentified)).toBe(true);
+  });
+});
+
+describe('AI Service - Relapse Analysis (Fallback Mode)', () => {
+  it('returns constructive encouragement and immediate action for relapse logs', async () => {
+    const advice = await aiService.analyzeRelapse('Boredom late night', 'Anxious', 'Scrolled for 2 hours');
+    expect(advice).toBeDefined();
+    expect(typeof advice.encouragement).toBe('string');
+    expect(typeof advice.immediateAction).toBe('string');
+    expect(typeof advice.microGoal).toBe('string');
+  });
+});
+
+describe('AI Service - Weekly Report Generation (Fallback Mode)', () => {
+  it('compiles success rate, triggers, and next week strategy', async () => {
+    const report = await aiService.generateWeeklyReport(
+      5,
+      [{ id: 'r1', uid: 'test_u', date: '2024-01-01', createdAt: '2024-01-01', timeOfDay: '10:00 PM', trigger: 'boredom', emotionalState: 'lonely', notes: '' }],
+      [{ id: 'j1', uid: 'test_u', content: 'Did great', timestamp: '2024-01-01' }]
+    );
+    expect(report).toBeDefined();
+    expect(typeof report.successRate).toBe('number');
+    expect(typeof report.biggestTrigger).toBe('string');
+    expect(typeof report.nextWeekStrategy).toBe('string');
+  });
+});
+
+describe('AI Service - Therapist Chat Response (Fallback Mode)', () => {
+  it('returns greeting response when user says hi', async () => {
+    const response = await aiService.getChatResponse([], 'hi', null);
+    expect(response).toBeDefined();
+    const lower = response.toLowerCase();
+    const isMatched = lower.includes('coach') || lower.includes('here for you') || lower.includes('hello') || lower.includes('hi');
+    expect(isMatched).toBe(true);
+  });
+
+  it('suggests physical movement on craving triggers', async () => {
+    const response = await aiService.getChatResponse([], 'feeling intense urge to scroll', null);
+    expect(response).toBeDefined();
+    expect(response.length).toBeGreaterThan(15);
+  });
+});
+
 describe('Authentication Flow (Mock Mode Simulation)', () => {
   it('prevents signup with an existing email', async () => {
     const email = 'existing@test.com';

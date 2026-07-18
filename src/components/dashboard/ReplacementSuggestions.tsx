@@ -37,7 +37,7 @@ export const ReplacementSuggestions: React.FC<ReplacementSuggestionsProps> = ({ 
 
   // Timer tick effect
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (timerRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);

@@ -28,6 +28,16 @@ export const LogRelapseModal: React.FC<LogRelapseModalProps> = ({ onClose, onLog
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [advice, setAdvice] = useState<RelapseAdvice | null>(null);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !trigger || !emotionalState) return;

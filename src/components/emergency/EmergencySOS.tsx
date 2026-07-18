@@ -19,6 +19,16 @@ export const EmergencySOS: React.FC<EmergencySOSProps> = ({ onClose, onSuccess }
   const [completedCycles, setCompletedCycles] = useState(0);
   const [survivalLogged, setSurvivalLogged] = useState(false);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const fetchAdvice = async () => {
     setLoading(true);
     try {

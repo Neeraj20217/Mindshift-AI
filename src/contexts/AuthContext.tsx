@@ -1,3 +1,4 @@
+/* eslint-disable react/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { isFirebaseConfigured, storageService } from '../services/storage';
 import { auth as firebaseAuth } from '../firebase/config';

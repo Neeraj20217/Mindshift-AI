@@ -115,7 +115,7 @@ export class LocalStorageService implements StorageService {
     localStorage.setItem(keys.chat, JSON.stringify(history));
   }
 
-  clearAllData(uid: string): void {
+  async clearAllData(uid: string): Promise<void> {
     const keys = this.getKeys(uid);
     Object.values(keys).forEach((key) => localStorage.removeItem(key));
   }

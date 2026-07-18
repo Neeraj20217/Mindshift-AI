@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { RecoveryPlan, JournalAnalysis, RelapseAdvice, WeeklyReport, HabitAssessment } from '../types/habit';
+import type { RecoveryPlan, JournalAnalysis, RelapseAdvice, WeeklyReport, HabitAssessment, RelapseLog, JournalEntry } from '../types/habit';
 
 // Initialize the Google Generative AI SDK safely
 const getGeminiModel = () => {
@@ -365,8 +365,8 @@ export const aiService = {
 
   async generateWeeklyReport(
     streak: number,
-    relapseLogs: { trigger: string; emotionalState: string; notes: string; timestamp: string }[],
-    journalEntries: { content: string; mood?: string; timestamp: string }[]
+    relapseLogs: RelapseLog[],
+    journalEntries: JournalEntry[]
   ): Promise<Partial<WeeklyReport>> {
     const model = getGeminiModel();
     if (!model) {

@@ -365,8 +365,8 @@ export const aiService = {
 
   async generateWeeklyReport(
     streak: number,
-    relapseLogs: any[],
-    journalEntries: any[]
+    relapseLogs: { trigger: string; emotionalState: string; notes: string; timestamp: string }[],
+    journalEntries: { content: string; mood?: string; timestamp: string }[]
   ): Promise<Partial<WeeklyReport>> {
     const model = getGeminiModel();
     if (!model) {

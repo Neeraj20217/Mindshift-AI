@@ -80,10 +80,14 @@ export const Dashboard: React.FC<{ onResetAssessment: () => void }> = ({ onReset
   ] as const;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row relative">
+    <div className="min-h-screen flex flex-col md:flex-row relative bg-transparent">
       {/* Background radial highlights */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+      {/* Large radial cyan glow behind the hero/dashboard */}
+      <div className="absolute top-[-10%] left-[30%] w-[650px] h-[650px] bg-sky-500/8 rounded-full blur-[140px] pointer-events-none z-0" />
+      {/* Emerald green accent lighting */}
+      <div className="absolute top-[20%] left-[-10%] w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none z-0" />
+      {/* Soft purple ambient glow */}
+      <div className="absolute bottom-[10%] right-[-10%] w-[550px] h-[550px] bg-violet-500/6 rounded-full blur-[130px] pointer-events-none z-0" />
 
       {/* MOBILE HEADER */}
       <header className="md:hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between z-40">

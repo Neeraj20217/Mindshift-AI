@@ -28,25 +28,25 @@ const assessmentSchema = z.object({
 type AssessmentFormValues = z.infer<typeof assessmentSchema>;
 
 const HABIT_PRESETS = [
-  { label: 'Doom scrolling', emoji: '📱' },
-  { label: 'Social media addiction', emoji: '🌐' },
-  { label: 'Screen addiction', emoji: '🖥️' },
-  { label: 'Gaming addiction', emoji: '🎮' },
-  { label: 'Procrastination', emoji: '⏳' },
-  { label: 'Smoking / Vaping', emoji: '🚬' },
-  { label: 'Alcohol consumption', emoji: '🍷' },
-  { label: 'Sugar / Junk food', emoji: '🍩' },
-  { label: 'Nail biting', emoji: '✂️' },
+  'Doom scrolling',
+  'Social media addiction',
+  'Screen addiction',
+  'Gaming addiction',
+  'Procrastination',
+  'Smoking / Vaping',
+  'Alcohol consumption',
+  'Sugar / Junk food',
+  'Nail biting',
 ];
 
 const TRIGGER_PRESETS = [
-  { label: 'Stress / Anxiety', emoji: '😰' },
-  { label: 'Boredom', emoji: '😑' },
-  { label: 'Fatigue / Tiredness', emoji: '😴' },
-  { label: 'Loneliness', emoji: '💔' },
-  { label: 'Social situations', emoji: '👥' },
-  { label: 'Late night routine', emoji: '🌙' },
-  { label: 'Work / Study pressure', emoji: '📚' },
+  'Stress / Anxiety',
+  'Boredom',
+  'Fatigue / Tiredness',
+  'Loneliness',
+  'Social situations',
+  'Late night routine',
+  'Work / Study pressure',
 ];
 
 const SEVERITY_OPTIONS = [
@@ -254,22 +254,21 @@ export const Assessment: React.FC<{ onComplete: () => void }> = ({ onComplete })
                     </label>
                     {!isCustomHabit ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {HABIT_PRESETS.map(({ label, emoji }) => {
-                          const selected = watchHabit === label;
+                        {HABIT_PRESETS.map((preset) => {
+                          const selected = watchHabit === preset;
                           return (
                             <button
-                              key={label}
+                              key={preset}
                               type="button"
-                              onClick={() => setValue('habitType', label, { shouldValidate: true })}
-                              className={`flex items-center gap-2 px-3 py-3 rounded-xl border text-sm font-medium transition-all duration-200 text-left ${
+                              onClick={() => setValue('habitType', preset, { shouldValidate: true })}
+                              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 text-left ${
                                 selected
                                   ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-md shadow-emerald-500/10 scale-[1.02]'
                                   : 'bg-slate-900/50 border-slate-700/60 text-slate-300 hover:border-emerald-500/40 hover:text-white hover:bg-slate-800/60'
                               }`}
                             >
-                              <span className="text-lg leading-none">{emoji}</span>
-                              <span className="leading-tight text-xs">{label}</span>
-                              {selected && <Check className="w-3 h-3 text-emerald-400 ml-auto flex-shrink-0" />}
+                              <span className="leading-tight text-xs">{preset}</span>
+                              {selected && <Check className="w-3.5 h-3.5 text-emerald-400 ml-auto flex-shrink-0" />}
                             </button>
                           );
                         })}
@@ -359,22 +358,21 @@ export const Assessment: React.FC<{ onComplete: () => void }> = ({ onComplete })
                       What sparks this habit? <span className="text-slate-500 font-normal">(select all that apply)</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {TRIGGER_PRESETS.map(({ label, emoji }) => {
-                        const sel = selectedTriggers.includes(label);
+                      {TRIGGER_PRESETS.map((preset) => {
+                        const sel = selectedTriggers.includes(preset);
                         return (
                           <button
-                            key={label}
+                            key={preset}
                             type="button"
-                            onClick={() => handleTriggerToggle(label)}
-                            className={`flex items-center gap-2.5 px-3 py-3 rounded-xl border text-sm transition-all duration-200 text-left ${
+                            onClick={() => handleTriggerToggle(preset)}
+                            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 text-left ${
                               sel
                                 ? 'bg-indigo-500/20 border-indigo-500 text-white shadow-md shadow-indigo-500/10 scale-[1.02]'
                                 : 'bg-slate-900/50 border-slate-700/60 text-slate-300 hover:border-indigo-400/40 hover:text-white hover:bg-slate-800/60'
                             }`}
                           >
-                            <span className="text-base leading-none">{emoji}</span>
-                            <span className="text-xs leading-tight">{label}</span>
-                            {sel && <Check className="w-3 h-3 text-indigo-400 ml-auto flex-shrink-0" />}
+                            <span className="text-xs leading-tight">{preset}</span>
+                            {sel && <Check className="w-3.5 h-3.5 text-indigo-400 ml-auto flex-shrink-0" />}
                           </button>
                         );
                       })}

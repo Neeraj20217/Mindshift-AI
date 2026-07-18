@@ -102,17 +102,17 @@ export const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden">
+    <div className="min-h-screen flex relative overflow-hidden bg-transparent">
       {/* ── Ambient Background ── */}
-      <div className="absolute inset-0 bg-slate-950" />
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-500/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-rose-500/4 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[#0B1020]/50 backdrop-blur-[3px]" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-rose-500/3 rounded-full blur-[120px] pointer-events-none" />
 
       {/* ═══════════════════════════════════════════
           LEFT PANEL — Feature Showcase (hidden on mobile)
       ═══════════════════════════════════════════ */}
-      <div className="hidden lg:flex lg:w-[55%] flex-col justify-between p-14 relative z-10 border-r border-slate-800/50">
+      <div className="hidden lg:flex lg:w-[55%] flex-col justify-between p-14 relative z-10 border-r border-slate-900/50">
 
         {/* Brand header */}
         <div className="flex items-center gap-3">
@@ -149,13 +149,13 @@ export const Auth: React.FC = () => {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="flex items-start gap-4 p-4 rounded-xl bg-slate-900/40 border border-slate-800/60 hover:border-slate-700/60 transition-all duration-200 group"
+                className="flex items-start gap-4 p-4 rounded-[20px] glass-panel glass-panel-hover group"
               >
-                <div className="w-9 h-9 rounded-lg bg-slate-800/80 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/40 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                   {f.icon}
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{f.title}</h4>
+                  <h4 className="text-sm font-bold text-slate-100">{f.title}</h4>
                   <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{f.desc}</p>
                 </div>
               </div>
@@ -164,11 +164,11 @@ export const Auth: React.FC = () => {
         </div>
 
         {/* Stats bar */}
-        <div className="flex items-center gap-8 pt-6 border-t border-slate-800/60">
+        <div className="flex items-center gap-8 pt-6 border-t border-slate-900/60">
           {STATS.map((s) => (
             <div key={s.label}>
-              <div className="text-xl font-black text-white">{s.value}</div>
-              <div className="text-xs text-slate-500">{s.label}</div>
+              <div className="text-2xl font-extrabold text-white tracking-tight">{s.value}</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{s.label}</div>
             </div>
           ))}
         </div>
@@ -205,26 +205,26 @@ export const Auth: React.FC = () => {
           <button
             onClick={handleGuestLogin}
             disabled={guestLoading || loading}
-            className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/25 hover:border-emerald-500/50 hover:from-emerald-500/15 hover:to-teal-500/15 transition-all duration-200 group"
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-[18px] glass-panel glass-panel-hover border-emerald-500/25 hover:border-emerald-500/50 group"
           >
             <div className="flex items-center gap-3">
               {guestLoading
                 ? <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
-                : <Sparkles className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                : <Sparkles className="w-5 h-5 text-emerald-400 group-hover:scale-105 transition-transform" />
               }
               <div className="text-left">
                 <span className="block text-sm font-bold text-white">Try as Guest</span>
                 <span className="block text-[10px] text-slate-400">Instant access — no account needed</span>
               </div>
             </div>
-            <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
 
           {/* Divider */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-800" />
+            <div className="flex-1 h-px bg-slate-900/60" />
             <span className="text-xs text-slate-500 font-medium">or continue with email</span>
-            <div className="flex-1 h-px bg-slate-800" />
+            <div className="flex-1 h-px bg-slate-900/60" />
           </div>
 
           {/* ── Form ── */}
@@ -359,18 +359,18 @@ export const Auth: React.FC = () => {
           </p>
 
           {/* Trust badges */}
-          <div className="flex items-center justify-center gap-4 pt-2 border-t border-slate-800/60">
-            <div className="flex items-center gap-1.5 text-slate-600">
+          <div className="flex items-center justify-center gap-4 pt-2 border-t border-slate-900/60">
+            <div className="flex items-center gap-1.5 text-slate-500/80">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span className="text-[10px] font-medium">Private & Secure</span>
             </div>
-            <div className="w-px h-3 bg-slate-800" />
-            <div className="flex items-center gap-1.5 text-slate-600">
+            <div className="w-px h-3 bg-slate-900" />
+            <div className="flex items-center gap-1.5 text-slate-500/80">
               <Zap className="w-3.5 h-3.5" />
               <span className="text-[10px] font-medium">No Credit Card</span>
             </div>
-            <div className="w-px h-3 bg-slate-800" />
-            <div className="flex items-center gap-1.5 text-slate-600">
+            <div className="w-px h-3 bg-slate-900" />
+            <div className="flex items-center gap-1.5 text-slate-500/80">
               <Heart className="w-3.5 h-3.5" />
               <span className="text-[10px] font-medium">Free Forever</span>
             </div>
